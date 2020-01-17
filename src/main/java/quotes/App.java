@@ -4,33 +4,58 @@
 package quotes;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class App {
     public static void main(String[] args) throws FileNotFoundException {
-
-//        RandomQuotes randquote = new RandomQuotes("This random quote", "Andy Shoemaker");
-//        System.out.println(randquote);
-
         Gson gson = new Gson();
+        URL url = null;
+        try {
+            url = new URL("https://programming-quotes-api.herokuapp.com/quotes/random");
+        } catch (MalformedURLException e) {
+            System.out.println("Error 404!, URL link entered is incorrect.");
+            e.printStackTrace();
+        }
+        try {
+//            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//            BufferedReader in = new BufferedReader(
+//                    new InputStreamReader(connection.getInputStream())
+//            );
+//
+//            String currentLine = in.readLine();
+//            while(currentLine != null) {
+//                System.out.println(currentLine);
+//                currentLine = in.readLine();
+//            }
+            InputStreamReader reader = new InputStreamReader(url.openStream());
+            RandomQuotes quoteFromApi = gson.fromJson(reader, RandomQuotes.class);
+            System.out.println(quoteFromApi);
 
-        RandomQuotes[] parseSourceQuotes = gson.fromJson(new FileReader("resources/recentquotes.json"), RandomQuotes[].class);
-//        System.out.println(gson.toJson(parseSourceQuotes));
-//        System.out.println(parseSourceQuotes);
-//        System.out.println(parseSourceQuotes[randomizer()].author + parseSourceQuotes[randomizer()].author);
+            
 
-        int index = randomizer();
-        RandomQuotes randquote = new RandomQuotes(parseSourceQuotes[index].author, parseSourceQuotes[index].likes ,parseSourceQuotes[index].text);
-        System.out.println(randquote);
+//            JsonParser parser = new JsonParser();
 
 
+
+        } catch (IOException e) {
+            System.out.println("The internet did not work!, reading from existing Files.");
+            RandomQuotes[] parseSourceQuotes = gson.fromJson(new FileReader("resources/recentquotes.json"), RandomQuotes[].class);
+//            System.out.println(parseSourceQuotes[1]);
+            int index = randomizer(parseSourceQuotes.length);
+            RandomQuotes randquote = parseSourceQuotes[index];
+            System.out.println(randquote);
+        }
     }
 
 
-    public static int randomizer(){
-        int x = (int)(Math.random() * 138);
+    public static int randomizer( int max){
+        int x = (int)(Math.random() * max);
         return x;
     }
 

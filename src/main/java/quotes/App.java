@@ -11,6 +11,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 
 public class App {
     public static void main(String[] args) throws FileNotFoundException {
@@ -37,16 +38,19 @@ public class App {
             RandomQuotes quoteFromApi = gson.fromJson(reader, RandomQuotes.class);
             System.out.println(quoteFromApi);
 
-            
+            RandomQuotes[] quotes = gson.fromJson(new FileReader("resources/recentquotes.json"), RandomQuotes[].class);
+            RandomQuotes[] newQuotes = Arrays.copyOf(quotes, quotes.length+1);
+            newQuotes[newQuotes.length -1] = quoteFromApi;
+            FileWriter writer = new FileWriter("resources/recentquotes.json");
+            writer.write(gson.toJson(newQuotes));
+            writer.close();
 
-//            JsonParser parser = new JsonParser();
 
 
 
         } catch (IOException e) {
             System.out.println("The internet did not work!, reading from existing Files.");
             RandomQuotes[] parseSourceQuotes = gson.fromJson(new FileReader("resources/recentquotes.json"), RandomQuotes[].class);
-//            System.out.println(parseSourceQuotes[1]);
             int index = randomizer(parseSourceQuotes.length);
             RandomQuotes randquote = parseSourceQuotes[index];
             System.out.println(randquote);
